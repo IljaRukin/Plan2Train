@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset='utf-8' />
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>-->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      headerToolbar: {
+        left: 'prevYear,prev,next,nextYear today',
+        center: 'title',
+        right: 'multiMonthYear,dayGridMonth'
+      },
+      initialDate: '2023-01-12',
+      firstDay: 1, //(Monday)
+      editable: true,
+      selectable: true,
+      businessHours: true,
+      dayMaxEvents: true,
+      initialView: 'dayGridMonth',
+      weekends: true,
+      events: [
+        {
+          title: 'Click for Google',
+          url: 'http://google.com/',
+          start: '2024-07-28'
+        }
+      ],
+      allDaySlot: false,
+      selectHelper: true,
+      eventClick: function(info){
+        if (confirm("Do you want to remove the event ?") == true) {
+          var password = prompt('Password:');
+          if (password) {
+          	var date = info.event.start.toISOString().slice(0,10);
+//          $.get("/removeEntry?title="+info.event.title+"?date="+date+?password="+password, function(data){
+            $.ajax({
+              url: "/removeEntry",
+              type: "get",
+              data: {title: info.event.title, date: date, password: password},
+              success: function(response) {
+                console.log("removed entry from database successfully");
+                info.event.remove();
+              },
+              error: function(xhr) {
+                console.log("failed to remove entry from database");
+              }
+            });
+          }
+        } else {
+          // canceled removing event
+        }
+      },
+      select: function(event) {
+        if (confirm("Do you want to add an event ?") == true) {
+          var title = prompt('Event Title:');
+          var password = prompt('Password:');
+          if (title && password) {
+          	var date = event.start.toISOString().slice(0,10);
+//          $.get("/addEntry?title="+title+"?date="+date+?password="+password, function(data){
+            $.ajax({
+              url: "/addEntry",
+              type: "get",
+              data: {title: title, date: date, password: password},
+              success: function(response) {
+                console.log("added entry to database successfully");
+                calendar.addEvent({
+                  title: title,
+                  start: event.start,
+                  allDay: event.allDay
+                });
+              },
+              error: function(xhr) {
+                console.log("failed to add entry to database");
+              }
+            });
+          }
+        } else {
+          // canceled adding event
+        }
+      },
+//    dateClick: this.handleDateClick.bind(this),
+//    dateClick:function (info) {
+//        console.log("See day infos: ",info);
+//    }
+    });
+
+    calendar.render();
+
+  });
+
+</script>
+<style>
+
+  body {
+    margin: 40px 10px;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+  }
+
+  #calendar {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+</style>
+</head>
+<body>
+
+  <p>Welcome {{ current_user.username }}!</p>
+  <a href="/logout">Logout</a>
+
+  <div id='calendar'></div>
+
+</body>
+</html>

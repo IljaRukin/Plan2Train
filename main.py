@@ -14,7 +14,9 @@ from home import home
 
 app = Flask(__name__, static_folder='../templates/static')
 
-app.config['SECRET_KEY'] = 'secret_key'
+with open("master_password.txt", "r") as f:
+    Password = f.readline().replace('\r', '').replace('\n', '')
+app.config['SECRET_KEY'] = Password
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 

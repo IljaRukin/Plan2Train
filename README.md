@@ -20,10 +20,14 @@ flask run
 ```
 
 ## run on google server
-https://cloud.google.com/sdk/?hl=de
+first setup and install
+```
 https://console.cloud.google.com/appengine/
-´´´
+https://cloud.google.com/sdk/?hl=de
+```
+then run
+```
 gcloud --version
 gcloud app deploy
 gcloud app browse
-´´´
+```

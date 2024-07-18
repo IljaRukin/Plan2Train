@@ -31,3 +31,10 @@ gcloud --version
 gcloud app deploy
 gcloud app browse
 ```
+
+## TODO
+* gitignore database file
+* registering users protected by a password
+* add separate file to store master password + gitignore
+* sqlalchemy orm
+* garmin sync

@@ -17,7 +17,6 @@ app = Flask(__name__, static_folder='../templates/static')
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-#db.create_all()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -37,4 +36,5 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 if __name__ == '__main__':
+    #db.create_all()
     app.run(host='0.0.0.0', port=3000)

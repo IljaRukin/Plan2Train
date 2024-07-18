@@ -12,9 +12,14 @@ login_manager.init_app(register)
 @register.route('/register', methods=['GET', 'POST'])
 def show():
     if request.method == 'POST':
+        masterPassword = request.form['masterPassword']
         username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirm-password']
+        print("masterPassword: "+masterPassword)
+        print("username: "+username)
+        print("password: "+password)
+        print("confirm_password: "+confirm_password)
 
         if username and password and confirm_password:
             if password == confirm_password:
@@ -23,7 +28,6 @@ def show():
                 try:
                     new_user = Users(
                         username=username,
-                        #email=email,
                         password=hashed_password,
                     )
 

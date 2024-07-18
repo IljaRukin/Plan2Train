@@ -1,6 +1,7 @@
 # Plan2Train
-training planing tool with sync to garmin
-using flask, sqlalchemy, werkzeug, 
+training planing tool with sync to garmin<br>
+The site is hosted <a href="https://plan2train-429422.ey.r.appspot.com/home">here</a><br>
+using flask, sqlalchemy, werkzeug, <br>
 
 ## create database
 ```
@@ -20,7 +21,7 @@ flask run
 ```
 
 ## run on google server
-first setup and install
+first setup and install<br>
 ```
 https://console.cloud.google.com/appengine/
 https://cloud.google.com/sdk/?hl=de
@@ -33,6 +34,6 @@ gcloud app browse
 ```
 
 ## TODO
-* registering users protected by a password
-* sqlalchemy orm
-* garmin sync
+* registering users protected by a password<br>
+* sqlalchemy orm<br>
+* garmin sync<br>

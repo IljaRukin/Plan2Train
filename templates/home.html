@@ -44,14 +44,14 @@
       selectHelper: true,
       eventClick: function(info){
         if (confirm("Do you want to remove the event ?") == true) {
-          var password = prompt('Password:');
+          var password = prompt('Master Password:');
           if (password) {
           	var date = info.event.start.toISOString().slice(0,10);
-//          $.get("/removeEntry?title="+info.event.title+"?date="+date+?password="+password, function(data){
+//          $.get("/removeEntry?title="+info.event.title+"?date="+date+?masterPassword="+password, function(data){
             $.ajax({
               url: "/removeEntry",
               type: "get",
-              data: {title: info.event.title, date: date, password: password},
+              data: {title: info.event.title, date: date, masterPassword: password},
               success: function(response) {
                 console.log("removed entry from database successfully");
                 info.event.remove();
@@ -62,20 +62,20 @@
             });
           }
         } else {
-          // canceled removing event
+          console.log("canceled removing event");
         }
       },
       select: function(event) {
         if (confirm("Do you want to add an event ?") == true) {
           var title = prompt('Event Title:');
-          var password = prompt('Password:');
+          var password = prompt('Master Password:');
           if (title && password) {
           	var date = event.start.toISOString().slice(0,10);
-//          $.get("/addEntry?title="+title+"?date="+date+?password="+password, function(data){
+//          $.get("/addEntry?title="+title+"?date="+date+?masterPassword="+password, function(data){
             $.ajax({
               url: "/addEntry",
               type: "get",
-              data: {title: title, date: date, password: password},
+              data: {title: title, date: date, masterPassword: password},
               success: function(response) {
                 console.log("added entry to database successfully");
                 calendar.addEvent({
@@ -90,7 +90,7 @@
             });
           }
         } else {
-          // canceled adding event
+          console.log("canceled adding event");
         }
       },
 //    dateClick: this.handleDateClick.bind(this),
@@ -122,6 +122,7 @@
 </head>
 <body>
 
+  <h1>Plan 2 Train</h1>
   <p>Welcome {{ current_user.username }}!</p>
   <a href="/logout">Logout</a>
 

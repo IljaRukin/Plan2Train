@@ -4,9 +4,8 @@ from flask_login import LoginManager
 
 from models import db, Users#, Sessions
 
-from index import index
-from updateData import addEntry
-from updateData import removeEntry
+from index import root, index
+from updateData import addEntry, removeEntry
 from login import login
 from logout import logout
 from register import register
@@ -25,6 +24,7 @@ login_manager.init_app(app)
 db.init_app(app)
 app.app_context().push()
 
+app.register_blueprint(root)
 app.register_blueprint(index)
 app.register_blueprint(addEntry)
 app.register_blueprint(removeEntry)

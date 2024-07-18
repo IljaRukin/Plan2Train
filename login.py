@@ -14,6 +14,8 @@ def show():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        print("username: "+username)
+        print("password: "+password)
 
         user = Users.query.filter_by(username=username).first()
 

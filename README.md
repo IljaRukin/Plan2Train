@@ -34,6 +34,5 @@ gcloud app browse
 ```
 
 ## TODO
-* registering users protected by a password<br>
 * sqlalchemy orm<br>
 * garmin sync<br>

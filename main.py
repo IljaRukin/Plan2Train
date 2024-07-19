@@ -2,7 +2,7 @@ from flask import Flask
 import sqlalchemy
 from flask_login import LoginManager
 
-from models import db, Users#, Sessions
+from models import db, User, TrainSession#, Sessions
 
 from index import root, index
 from updateData import addEntry, removeEntry
@@ -13,11 +13,12 @@ from home import home
 
 app = Flask(__name__, static_folder='../templates/static')
 
+dbPath = 'sqlite:///database.db'
 with open("master_password.txt", "r") as f:
     Password = f.readline().replace('\r', '').replace('\n', '')
-app.config['SECRET_KEY'] = Password
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
+app.config['SECRET_KEY'] = Password
+app.config['SQLALCHEMY_DATABASE_URI'] = dbPath
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -34,8 +35,8 @@ app.register_blueprint(register)
 app.register_blueprint(home)
 
 @login_manager.user_loader
-def load_user(user_id):
-    return Users.query.get(int(user_id))
+def load_user(userId):
+    return User.query.get(int(userId))
 
 if __name__ == '__main__':
     #db.create_all()

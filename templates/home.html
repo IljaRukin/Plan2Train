@@ -16,18 +16,88 @@
 
 <script>
 
-  document.addEventListener('DOMContentLoaded', function() {
+    var password = "";
+    function toggleEditing(){
+      if (password) {
+        password = "";
+        document.getElementById("dropElements").style.display = "none";
+      } else {
+        password = prompt('Master Password:');
+        document.getElementById("dropElements").style.display = "block";
+      }
+    };
 
+/*    function captureMouseClick(element){
+      element.addEventListener("mousedown", function (e) {
+        if (password) {
+          var isRightMB = false;
+          e = e || window.event;
+
+          //decide if left or right click
+          if ("which" in e) { // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+            isRightMB = e.which == 3;
+          }
+          else if ("button" in e) { // IE, Opera 
+            isRightMB = e.button == 2;
+          } else { // default: left click
+
+          }
+
+          //process click
+          if (isRightMB) {
+            //edit entry
+          } else {
+            //delete entry
+          }
+
+        } 
+      })
+    };
+
+    const sessionEntries = document.getElementsByClassName("fc-daygrid-event-harness");
+    for (let i = 0; i < sessionEntries.length; i++) {
+      captureMouseClick(sessionEntries.item(i));
+    }
+    */
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var Calendar = FullCalendar.Calendar;
+    var DraggableSidebar = FullCalendar.Draggable;
+    var DraggableSessions = FullCalendar.Draggable;
+
+    var containerEl = document.getElementById('external-events');
     var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    //var checkbox = document.getElementById('drop-remove');
+
+    new DraggableSidebar(containerEl, {
+      itemSelector: '.fc-event',
+      eventData: function(eventEl) {
+        return {
+          title: eventEl.innerText,
+          color: eventEl.style.backgroundColor
+        };
+      }
+    });
+  
+    new DraggableSessions(calendarEl, {
+      itemSelector: ".fc-event",
+      eventData: function(eventEl) {
+        return {
+          title: eventEl.innerText,
+          color: eventEl.style.backgroundColor
+        };
+      }
+    });
+
+    var Calendar = new FullCalendar.Calendar(calendarEl, {
       headerToolbar: {
         left: 'prevYear,prev,next,nextYear today',
         center: 'title',
         right: 'multiMonthYear,dayGridMonth'
       },
-      initialDate: '2023-01-12',
       firstDay: 1, //(Monday)
-      editable: true,
+      editable: false,
+      droppable: true,
       selectable: true,
       businessHours: true,
       dayMaxEvents: true,
@@ -37,15 +107,16 @@
         {
           title: 'Click for Google',
           url: 'http://google.com/',
-          start: '2024-07-28'
+          start: '2024-07-28',
+          color: 'green'
         }
       ],
       allDaySlot: false,
       selectHelper: true,
+    //-----edit/remove entry on click into event-----
       eventClick: function(info){
-        if (confirm("Do you want to remove the event ?") == true) {
-          var password = prompt('Master Password:');
-          if (password) {
+        if (password) {
+          if (confirm("Do you want to remove the event ?") == true) {
           	var date = info.event.start.toISOString().slice(0,10);
 //          $.get("/removeEntry?title="+info.event.title+"?date="+date+?masterPassword="+password, function(data){
             $.ajax({
@@ -60,16 +131,16 @@
                 console.log("failed to remove entry from database");
               }
             });
+          } else {
+            console.log("canceled removing event");
           }
-        } else {
-          console.log("canceled removing event");
         }
       },
+      //-----add entry on click into calendar-----
       select: function(event) {
-        if (confirm("Do you want to add an event ?") == true) {
-          var title = prompt('Event Title:');
-          var password = prompt('Master Password:');
-          if (title && password) {
+        if (password) {
+          if (confirm("Do you want to add an event ?") == true) {
+            var title = prompt('Event Title:');
           	var date = event.start.toISOString().slice(0,10);
 //          $.get("/addEntry?title="+title+"?date="+date+?masterPassword="+password, function(data){
             $.ajax({
@@ -78,55 +149,133 @@
               data: {title: title, date: date, masterPassword: password},
               success: function(response) {
                 console.log("added entry to database successfully");
-                calendar.addEvent({
+                Calendar.addEvent({
                   title: title,
                   start: event.start,
-                  allDay: event.allDay
+                  allDay: event.allDay,
+                  color: 'blue'
                 });
               },
               error: function(xhr) {
                 console.log("failed to add entry to database");
               }
             });
+          } else {
+            console.log("canceled adding event");
           }
-        } else {
-          console.log("canceled adding event");
         }
       },
+      drop: function(info) {
+        if (false) { //remove oroginal element
+          info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }
+      }
 //    dateClick: this.handleDateClick.bind(this),
 //    dateClick:function (info) {
 //        console.log("See day infos: ",info);
 //    }
     });
 
-    calendar.render();
+    Calendar.render();
 
   });
 
 </script>
 <style>
 
-  body {
+/*  body {
     margin: 40px 10px;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+  }*/
+
+  html, body {
+    margin: 0;
     padding: 0;
     font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
     font-size: 14px;
   }
 
+  #dropElements{
+    display: none;
+  }
+
+  #external-events {
+/*    position: relative;
+    width: 10%;
+    margin-right: 90%;
+    z-index: 2;
+    top: 20px;
+    left: 20px;
+    width: 150px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    background: #eee;*/
+  }
+
+  #external-events .fc-event {
+/*    cursor: move;
+    margin: 3px 0;*/
+  }
+
+  #calendar-container {
+/*    position: relative;
+    width: 90%;
+    min-width:500px;
+    margin-left: 10%;*/
+  }
+
   #calendar {
-    max-width: 1100px;
-    margin: 0 auto;
+/*    margin: 20px auto;*/
   }
 
 </style>
 </head>
 <body>
 
-  <h1>Plan 2 Train</h1>
-  <p>Welcome {{ current_user.username }}!</p>
-  <a href="/logout">Logout</a>
+<div class="container text-center" style="width:100%;">
 
-  <div id='calendar'></div>
+  <div class="row" id="header">
+    <h1>Plan 2 Train</h1>
+    <p>Welcome {{ current_user.username }}!</p>
+    <a href="/logout">Logout</a> | <a href="#" onclick="toggleEditing();return false;">edit</a>
+  </div>
+
+  <div class="row" id="planning">
+    <div class="col-md-1" id="dropElements">
+      <div id='external-events'>
+        <p>
+          <strong>Sessions</strong>
+        </p>
+        <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' style="background-color:blue;">
+          <div class='fc-event-main'>GA1</div>
+        </div>
+        <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' style="background-color:green;">
+          <div class='fc-event-main'>GA2</div>
+        </div>
+        <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' style="background-color:yellow;">
+          <div class='fc-event-main'>GA3</div>
+        </div>
+        <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' style="background-color:red;">
+          <div class='fc-event-main'>GA4</div>
+        </div>
+        <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event' style="background-color:violet;">
+          <div class='fc-event-main'>GA5</div>
+        </div>
+        <!--<p>
+          <input type='checkbox' id='drop-remove' />
+          <label for='drop-remove'>remove after drop</label>
+        </p>-->
+      </div>
+    </div>
+
+    <div class="col-md-11">
+      <div id='calendar-container'>
+        <div id='calendar'></div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

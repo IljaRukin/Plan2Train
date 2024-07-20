@@ -19,9 +19,10 @@ def show():
         print("current_user: "+current_user.get_id())
         training = TrainSession(title=title,date=date)
         user = User.query.filter_by(username=current_user.get_id()).first()
-        #user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
+        ###user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
         user.trainSessions.append(training)
-        db.session[user.userId]=user#.add(user)
+        #db.session[user.userId]=user#.add(user)
+        db.session.add(training)
         db.session.commit()
         return "True"
     else:
@@ -42,9 +43,10 @@ def show():
         print("current_user: "+current_user.get_id())
         training = TrainSession(title=title,date=date)
         user = User.query.filter_by(username=current_user.get_id()).first()
-        #user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
+        ###user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
         user.trainSessions.remove(training)
-        db.session[user.userId]=user#.add(user)
+        #db.session[user.userId]=user#.add(user)
+        db.session.remove(training)
         db.session.commit()
         return "True"
     else:

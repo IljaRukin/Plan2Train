@@ -15,8 +15,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(20), unique=True)
     password = db.Column(db.String)
     
-    trainSessions = relationship('TrainSession') # one to many relationship with posts
-    #trainSessions: Mapped[list['TrainSessions']] = relationship(back_populates='user')
+    #trainSessions = relationship('TrainSession') # one to many relationship with posts
+    trainSessions: Mapped[list["TrainSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 class TrainSession(db.Model):
     __tablename__ = 'trainSessions'
@@ -24,5 +24,6 @@ class TrainSession(db.Model):
     title = db.Column(db.String)
     date = db.Column(db.String(20))
 
-    userId = db.Column(db.Integer, db.ForeignKey('users.id'))
-    #userId: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    #userId = db.Column(db.Integer, db.ForeignKey('users.id'))
+    userId: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user: Mapped["User"] = relationship(back_populates="trainSessions")

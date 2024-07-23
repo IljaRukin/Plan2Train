@@ -34,6 +34,6 @@ gcloud app browse
 ```
 
 ## TODO
-* popup for train session editing
+* popup for train session editing<br>
 * sqlalchemy orm<br>
 * garmin sync<br>

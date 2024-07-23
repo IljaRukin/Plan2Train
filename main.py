@@ -4,13 +4,6 @@ from flask_login import LoginManager
 
 from models import db, User, TrainSession#, Sessions
 
-from index import root, index
-from updateData import addEntry, removeEntry
-from login import login
-from logout import logout
-from register import register
-from home import home
-
 app = Flask(__name__, static_folder='../templates/static')
 
 dbPath = 'sqlite:///database.db'
@@ -25,14 +18,19 @@ login_manager.init_app(app)
 db.init_app(app)
 app.app_context().push()
 
+from index import root, index
 app.register_blueprint(root)
 app.register_blueprint(index)
+from sessions import addEntry, removeEntry
 app.register_blueprint(addEntry)
 app.register_blueprint(removeEntry)
+from users import checkPassword, login, home, logout, register, allUsers
+app.register_blueprint(checkPassword)
 app.register_blueprint(login)
+app.register_blueprint(home)
 app.register_blueprint(logout)
 app.register_blueprint(register)
-app.register_blueprint(home)
+app.register_blueprint(allUsers)
 
 @login_manager.user_loader
 def load_user(userId):

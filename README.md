@@ -13,10 +13,10 @@ db.create_all()
 
 ## run local
 ```
-set FLASK_APP=main.py
-set FLASK_DEBUG=1
-$env:FLASK_APP = "main.py"
-$env:FLASK_DEBUG = "1"
+set FLASK_APP=main.py #commandline
+set FLASK_DEBUG=1 #commandline
+$env:FLASK_APP = "main.py" #powershell
+$env:FLASK_DEBUG = "1" #powershell
 flask run
 ```
 

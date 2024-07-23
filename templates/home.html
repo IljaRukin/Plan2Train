@@ -380,12 +380,12 @@
         }
       },
       //-----add entry on click into calendar-----
-      select: function(info) {
+      select: function(event) {
         if (password) {
-          var date = format(info.event.start, 'yyyy-MM-dd');
-          var title = info.event.title;
-          var color = info.event.backgroundColor;
-          var description = info.event.extendedProps.description;
+          var date = format(event.start, 'yyyy-MM-dd');
+          var title = "new title";
+          var color = "blue";
+          var description = "description";
           entryPresent = false;
           showPopup(date, title, color, description);
         }
@@ -577,9 +577,9 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button id="removeButton" type="button" class="btn btn-secondary" onclick="removeEntry()">remove</button>
-        <button id="applyButton" type="button" class="btn btn-secondary" onclick="applyEntry()">apply</button>
-        <button id="closeButton" type="button" class="btn btn-primary" onclick="hidePopup()">close</button>
+        <button id="removeButton" type="button" class="btn btn-secondary" onclick="removeEntry();hidePopup();">remove</button>
+        <button id="applyButton" type="button" class="btn btn-secondary" onclick="removeEntry();applyEntry();hidePopup();">apply</button>
+        <button id="closeButton" type="button" class="btn btn-primary" onclick="hidePopup();">close</button>
       </div>
     </div>
   </div>

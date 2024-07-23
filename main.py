@@ -2,7 +2,7 @@ from flask import Flask
 import sqlalchemy
 from flask_login import LoginManager
 
-from models import db, User, TrainSession#, Sessions
+from models import db, User, TrainSession
 
 app = Flask(__name__, static_folder='../templates/static')
 
@@ -18,19 +18,25 @@ login_manager.init_app(app)
 db.init_app(app)
 app.app_context().push()
 
+if len(db.session.query.__dict__)==0:
+    print("database empty !")
+    db.create_all()
+
 from index import root, index
 app.register_blueprint(root)
 app.register_blueprint(index)
 from sessions import addEntry, removeEntry
 app.register_blueprint(addEntry)
 app.register_blueprint(removeEntry)
-from users import checkPassword, login, home, logout, register, allUsers
+from users import checkPassword, login, home, logout, register, userSessions, allUsers, trainingDetails
 app.register_blueprint(checkPassword)
 app.register_blueprint(login)
 app.register_blueprint(home)
 app.register_blueprint(logout)
 app.register_blueprint(register)
+app.register_blueprint(userSessions)
 app.register_blueprint(allUsers)
+app.register_blueprint(trainingDetails)
 
 @login_manager.user_loader
 def load_user(userId):

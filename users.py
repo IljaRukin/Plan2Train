@@ -1,9 +1,10 @@
-from flask import Blueprint, url_for, render_template, redirect, request
+from flask import Blueprint, url_for, render_template, redirect, request, Response
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlalchemy
+import json
 
-from models import db, User
+from models import db, User, TrainSession
 
 with open("master_password.txt", "r") as f:
     Password = f.readline().replace('\r', '').replace('\n', '')
@@ -25,11 +26,11 @@ def show():
 
     if masterPassword:
         if masterPassword == Password:
-            return "True"
+            return {"status":"True"}
         else:
-            return "False"
+            return {"status":"False"}
     else:
-        return "False"
+        return {"status":"False"}
 
 login = Blueprint('login', __name__, template_folder='../templates')
 login_manager.init_app(login)
@@ -52,7 +53,8 @@ def show():
     if user:
         if check_password_hash(user.password, password):
             login_user(user)
-            return redirect(url_for('home.show'))
+            #trainSessions = User.query.filter_by(id=current_user.get_id()).first().trainSessions
+            return render_template('home.html')#, trainSessions=trainSessions)
         else:
             return redirect(url_for('login.show') + '?error=incorrect-password')
     else:
@@ -64,7 +66,8 @@ login_manager.init_app(home)
 @home.route('/home', methods=['GET'])
 @login_required
 def show():
-    return render_template('home.html')
+    #trainSessions = User.query.filter_by(id=current_user.get_id()).first().trainSessions
+    return render_template('home.html')#, trainSessions=trainSessions)
 
 logout = Blueprint('logout', __name__, template_folder='../templates')
 login_manager.init_app(logout)
@@ -114,6 +117,23 @@ def show():
         #masterPassword = None
         return render_template('register.html')
 
+userSessions = Blueprint('userSessions', __name__, template_folder='../templates')
+
+@userSessions.route('/userSessions', methods=['GET', 'POST'])
+def data():
+    trainSessions = User.query.filter_by(id=current_user.get_id()).first().trainSessions
+    processedTrainingSessions = list()
+    for row in trainSessions:
+        processedTrainingSessions.append({
+            'id': row.id,
+            'start': row.date,
+            'title': row.title,
+            'color': row.color,
+            'description': row.description,
+            'url': "javascript: clickLink("+str(row.id)+")"
+            })
+    return Response(json.dumps(processedTrainingSessions),  mimetype='application/json')
+
 allUsers = Blueprint('allUsers', __name__, template_folder='../templates')
 
 @allUsers.route('/allUsers', methods=['GET', 'POST'])
@@ -130,3 +150,37 @@ def show():
         return render_template('allUsers.html', users=users)
     else:
         return redirect(url_for('login.show'))
+
+trainingDetails = Blueprint('trainingDetails', __name__, template_folder='../templates')
+
+@trainingDetails.route('/trainingDetails', methods=['GET', 'POST'])
+def show():
+    if request.method == 'POST':
+        id = request.form['id']
+        # date = request.form['date']
+        # title = request.form['title']
+        # color = request.form['color']
+        # description = request.form['description']
+    elif request.method == 'GET':
+        id = request.args.get('id')
+        # date = request.args.get('date')
+        # title = request.args.get('title')
+        # color = request.args.get('color')
+        # description = request.args.get('description')
+    else:
+        masterPassword = None
+        id = None
+        # date = None
+        # title = None
+        # color = None
+        # description = None
+        return render_template('home.html')
+        
+    training = db.session.scalars(
+        sqlalchemy.select(TrainSession)
+        .where(TrainSession.id == id)
+        .join(TrainSession.user)
+        .where(User.id == current_user.get_id())
+    ).first()
+    #return render_template('trainingDetails.html' +'?id='+id, training=training)
+    return render_template('trainingDetails.html', training=training)

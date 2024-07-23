@@ -17,27 +17,31 @@ addEntry = Blueprint('addEntry', __name__, template_folder='../templates')
 def show():
     if request.method == 'POST':
         masterPassword = request.form['masterPassword']
-        title = request.form['title']
         date = request.form['date']
+        title = request.form['title']
+        color = request.form['color']
+        description = request.form['description']
     elif request.method == 'GET':
         masterPassword = request.args.get('masterPassword')
-        title = request.args.get('title')
         date = request.args.get('date')
+        title = request.args.get('title')
+        color = request.args.get('color')
+        description = request.args.get('description')
     else:
         masterPassword = None
-        title = None
         date = None
+        title = None
+        color = None
+        description = None
 
     if masterPassword == Password:
-        training = TrainSession(title=title,date=date)
+        training = TrainSession(title=title,date=date,color=color,description=description)
         user = User.query.filter_by(id=current_user.get_id()).first()
-        ###user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
         user.trainSessions.append(training)
-        #db.session.add(training)
         db.session.commit()
-        return "True"
+        return {"status":"True","id":str(training.id)}
     else:
-        return "False"
+        return {"status":"False"}
 
 removeEntry = Blueprint('removeEntry', __name__, template_folder='../templates')
 
@@ -45,31 +49,36 @@ removeEntry = Blueprint('removeEntry', __name__, template_folder='../templates')
 def show():
     if request.method == 'POST':
         masterPassword = request.form['masterPassword']
-        title = request.form['title']
+        id = request.form['id']
         date = request.form['date']
+        title = request.form['title']
+        color = request.form['color']
+        description = request.form['description']
     elif request.method == 'GET':
         masterPassword = request.args.get('masterPassword')
-        title = request.args.get('title')
+        id = request.args.get('id')
         date = request.args.get('date')
+        title = request.args.get('title')
+        color = request.args.get('color')
+        description = request.args.get('description')
     else:
         masterPassword = None
-        title = None
+        id = None
         date = None
+        title = None
+        color = None
+        description = None
         
     if masterPassword == Password:
         training = db.session.scalars(
             select(TrainSession)
+            .where(TrainSession.id == id)
             .join(TrainSession.user)
             .where(User.id == current_user.get_id())
         ).first()
-        #training = TrainSession(title=title,date=date)
-        print(training)
         selectedUser = User.query.filter_by(id=current_user.get_id()).first()
-        ###user = db.session.execute(select(User).filter_by(name="sandy")).scalar_one()
         selectedUser.trainSessions.remove(training)
-        #db.session.remove(training)
-        print(selectedUser)
         db.session.commit()
-        return "True"
+        return {"status":"True"}
     else:
-        return "False"
+        return {"status":"False"}

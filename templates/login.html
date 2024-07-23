@@ -37,7 +37,7 @@
           type: "post",
           data: {'masterPassword': password},
           success: function(response) {
-              if (response=="True") {
+              if (response.status=="True") {
               console.log("masterPassword correct");
               //window.location.href = '/allUsers?masterPassword='+password;
               $.redirect('/allUsers', {'masterPassword': password});

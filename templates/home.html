@@ -56,6 +56,30 @@
       });
   }
 
+  function clickLink(id) {
+    if (password) {
+      console.log("link disabled.");
+    } else {
+      window.location = "/trainingDetails?id="+id;
+    }
+  }
+  
+  function GetStyleClass(className) {
+    for (var i=0; i< document.styleSheets.length; i++) {
+      var styleSheet = document.styleSheets[i];
+
+      var rules = styleSheet.cssRules || styleSheet.rules;
+
+      for (var j=0; j<rules.length; j++) {
+        var rule = rules[j];
+
+        if (rule.selectorText === className) {
+          return(rule.style);
+        }
+      }
+    }
+  }
+
     function toggleEditing(){
       //input password
       password = prompt('Master Password:');
@@ -67,26 +91,30 @@
           type: "post",
           data: {masterPassword: password},
           success: function(response) {
-              if (response=="True") {
+              if (response.status=="True") {
               console.log("masterPassword correct");
               document.getElementById("dropElements").style.display = "block";
+              //GetStyleClass(".fc-event").pointerEvents = "none";
             } else {
               console.log("masterPassword incorrect");
               document.getElementById("dropElements").style.display = "none";
+              //GetStyleClass(".fc-event").pointerEvents = "";
             }
           },
           error: function(response) {
             console.log("masterPassword couldn't be checked");
             document.getElementById("dropElements").style.display = "none";
+            //GetStyleClass(".fc-event").pointerEvents = "";
           }
         });
       } else {
           console.log("masterPassword empty");
           document.getElementById("dropElements").style.display = "none";
+          //GetStyleClass(".fc-event").pointerEvents = "";
       }
     };
 
-    function showPopup(date, title, color, description){
+    function showPopup(id, date, title, color, description){
       $('#exampleModal').modal('show');
       //$('#exampleModal').hasClass('in')==true
       if (entryPresent) {
@@ -94,6 +122,7 @@
       } else {
         document.getElementById("removeButton").disabled = true;
       }
+      document.getElementById("id").value = id;
       document.getElementById("date").value = date;
       document.getElementById("title").value = title;
       document.getElementById("color").value = color;
@@ -107,6 +136,7 @@
 
     function removeEntry() {
       if (entryPresent) {
+        var id = document.getElementById("id").value;
         var date = document.getElementById("date").value;
         var title = document.getElementById("title").value;
         var color = document.getElementById("color").value;
@@ -114,9 +144,9 @@
         $.ajax({
           url: "/removeEntry",
           type: "post",
-          data: {title: title, date: date, masterPassword: password},
+          data: {id: id, date: date, title: title, color: color, description: description, masterPassword: password},
           success: function(response) {
-            if (response=="True") {
+            if (response.status=="True") {
               console.log("removed entry from database successfully");
               selectedEntry.remove();
             } else {
@@ -131,6 +161,7 @@
     };
 
     function applyEntry() {
+      //var id = document.getElementById("id").value;
       var date = document.getElementById("date").value;
       var title = document.getElementById("title").value;
       var color = document.getElementById("color").value;
@@ -138,20 +169,21 @@
       $.ajax({
         url: "/addEntry",
         type: "post",
-        data: {title: title, date: date, masterPassword: password},
+        data: {date: date, title: title, color: color, description: description, masterPassword: password},
         success: function(response) {
-            if (response=="True") {
-              console.log("added entry to database successfully");
-              Calendar.addEvent({
-                title: title,
-                start: date,
-                allDay: true,
-                description: description,
-                color: color
-              });
-            } else {
-              console.log("failed to add entry to database");
-            }
+          if (response.status=="True") {
+            console.log("added entry to database successfully");
+            Calendar.addEvent({
+              id: Number(response.id),
+              start: date,
+              title: title,
+              color: color,
+              description: description,
+              url: "javascript: clickLink("+Number(response.id)+")"
+            });
+          } else {
+            console.log("failed to add entry to database");
+          }
         },
         error: function(response) {
           console.log("couldn't submit addition of entry to database");
@@ -213,6 +245,15 @@
         if (link==undefined) {
           link = "";
         }
+        var id = "";
+        try {
+          id = document.getElementById(eventEl.getAttribute('aria-describedby')).id;
+        } catch (error) {
+          id = "";
+        }
+        if (id==undefined) {
+          id = "";
+        }
         var descript = "";
         try {
           descript = document.getElementById(eventEl.getAttribute('aria-describedby')).textContent;
@@ -224,10 +265,11 @@
         }
         return {
           //eventEl
+          id: id,
           title: eventEl.innerText,
           color: eventEl.style.backgroundColor,
-          url: link,
-          description: descript
+          description: descript,
+          url: link
         };
       }
     });
@@ -241,18 +283,34 @@
         } catch (error) {
           link = "";
         }
+        if (link==undefined) {
+          link = "";
+        }
+        var id = "";
+        try {
+          id = document.getElementById(eventEl.getAttribute('aria-describedby')).id;
+        } catch (error) {
+          id = "";
+        }
+        if (id==undefined) {
+          id = "";
+        }
         var descript = "";
         try {
           descript = document.getElementById(eventEl.getAttribute('aria-describedby')).textContent;
         } catch (error) {
           descript = "";
         }
+        if (descript==undefined) {
+          descript = "";
+        }
         return {
           //eventEl
+          id: id,
           title: eventEl.innerText,
           color: eventEl.style.backgroundColor,
-          url: link,
-          description: descript
+          description: descript,
+          url: link
         };
       }
     });
@@ -274,13 +332,8 @@
       //-----display modal with infos-----
       eventDidMount: function(info) {
         //tooltip to display description
-/*        var tooltip = new Tooltip(info.el, {
-          title: info.event.extendedProps.description,
-          placement: 'top',
-          trigger: 'hover',
-          container: 'body'
-        });*/
         $(info.el).tooltip({ 
+          id: info.event.id,
           title: info.event.extendedProps.description,
           placement: "top",
           trigger: "hover",
@@ -291,107 +344,40 @@
         descriptionElement.innerHTML = info.event.extendedProps.description;
         info.el.appendChild(descriptionElement);*/
       },
-      events: [
-        {
-          title: 'All Day Event',
-          description: 'description for All Day Event',
-          start: '2024-07-01',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Long Event',
-          description: 'description for Long Event',
-          start: '2024-07-07',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          groupId: '999',
-          title: 'Repeating Event',
-          description: 'description for Repeating Event',
-          start: '2024-07-09',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          groupId: '999',
-          title: 'Repeating Event',
-          description: 'description for Repeating Event',
-          start: '2024-07-16',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Conference',
-          description: 'description for Conference',
-          start: '2024-07-11',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Meeting',
-          description: 'description for Meeting',
-          start: '2024-07-12',
-          allDay: true,
-          color: 'blue',
-        },
-        {
-          title: 'Lunch',
-          description: 'description for Lunch',
-          start: '2024-07-12',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Meeting',
-          description: 'description for Meeting',
-          start: '2024-07-12',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Birthday Party',
-          description: 'description for Birthday Party',
-          start: '2024-07-13',
-          allDay: true,
-          color: 'blue'
-        },
-        {
-          title: 'Click for Google',
-          description: 'description for Click for Google',
-          url: 'https://google.com/',
-          start: '2024-07-28',
-          allDay: true,
-          color: 'blue'
+      events: {
+        url: 'userSessions',
+        error: function(event) {
+          console.log("failed loading user training sessions.");
         }
-      ],
-      allDaySlot: false,
+      },
     //-----edit/remove entry on click into event-----
       eventClick: function(info){
         if (password) {
+          var id = info.event.id;
           var date = format(info.event.start, 'yyyy-MM-dd');
           var title = info.event.title;
           var color = info.event.backgroundColor;
           var description = info.event.extendedProps.description;
           entryPresent = true;
           selectedEntry = info.event;
-          showPopup(date, title, color, description);
+          showPopup(id, date, title, color, description);
         }
       },
       //-----add entry on click into calendar-----
       select: function(event) {
         if (password) {
+          var id = "###";
           var date = format(event.start, 'yyyy-MM-dd');
           var title = "new title";
           var color = "blue";
           var description = "description";
           entryPresent = false;
-          showPopup(date, title, color, description);
+          showPopup(id, date, title, color, description);
         }
       },
       //-----receive dragged event and put it into calendar-----
       eventReceive: function (info) {
+        info.event.remove();
         if (password){
           var date = info.event.startStr;
           var title = info.event.title;
@@ -400,33 +386,26 @@
           $.ajax({
             url: "/addEntry",
             type: "post",
-            data: {title: title, date: date, masterPassword: password},
+            data: {date: date, title: title, color: color, description: description, masterPassword: password},
             success: function(response) {
-                if (response=="True") {
-                  console.log("added entry to database successfully");
-/*
-                  Calendar.addEvent({
-                    title: title,
-                    start: date,
-                    allDay: true,
-                    description: description,
-                    color: color
-                  });
-*/
-                } else {
-                  console.log("failed to add entry to database");
-                  info.event.remove();
-
-                }
+              if (response.status=="True") {
+                console.log("added entry to database successfully");
+                Calendar.addEvent({
+                  id: Number(response.id),
+                  start: date,
+                  title: title,
+                  color: color,
+                  description: description,
+                  url: "javascript: clickLink("+Number(response.id)+")"
+                });
+              } else {
+                console.log("failed to add entry to database");
+              }
             },
             error: function(response) {
               console.log("couldn't submit addition of entry to database");
-              info.event.remove();
-
             }
           });
-        } else {
-          info.event.remove();
         }
       },
 /*
@@ -498,6 +477,7 @@
 /*    margin: 20px auto;*/
   }
 
+  .fc-event {}
 
 </style>
 </head>
@@ -544,10 +524,11 @@
 
 
   <!--
+  [id]
   [date]
   title
-  description
   color
+  description
   remove, apply, close
   -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -558,6 +539,10 @@
       </div>
       <div class="modal-body">
         <form>
+          <div class="mb-3">
+            <label for="id" class="col-form-label">id:</label>
+            <input type="text" class="form-control" id="id" readonly>
+          </div>
           <div class="mb-3">
             <label for="date" class="col-form-label">date:</label>
             <input type="text" class="form-control" id="date" readonly>

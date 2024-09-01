@@ -7,18 +7,18 @@ using flask, sqlalchemy, werkzeug, <br>
 ```
 pip3 install -r requirements.txt
 python3
-from app import db
+from main import db
 db.create_all()
 ```
 
 ## run local
 ```
-set FLASK_APP=app.py #commandline
+set FLASK_APP=main.py #commandline
 set FLASK_DEBUG=1 #commandline
 set WEBSITE_PW=myWebPassword #commandline
 set DATABASE_PATH=myDbPath #commandline
 set DATABASE_PW=myDbPassword #commandline
-$env:FLASK_APP = "app.py" #powershell
+$env:FLASK_APP = "main.py" #powershell
 $env:FLASK_DEBUG = "1" #powershell
 $env:WEBSITE_PW = "myWebPassword" #powershell
 $env:DATABASE_PATH = "myDbPath" #powershell

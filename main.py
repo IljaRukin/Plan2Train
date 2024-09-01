@@ -8,10 +8,13 @@ from models import db, User, TrainSession
 app = Flask(__name__, static_folder='../templates/static')
 
 ###dbPath = 'sqlite:///database.db'
-dbPath = 'postgres://koyeb-adm:Z6LBg7uNUWRD@ep-young-glade-a2o4n9jq.eu-central-1.pg.koyeb.app/koyebdb'
+dbPath = 'postgresql://koyeb-adm:Z6LBg7uNUWRD@ep-young-glade-a2o4n9jq.eu-central-1.pg.koyeb.app/koyebdb'
 
 if 'DATABASE_PW' in os.environ:
     dbPassword = os.environ['DATABASE_PW']
+
+if 'DATABASE_PATH' in os.environ:
+    dbPath = os.environ['DATABASE_PATH']
 
 app.config['SECRET_KEY'] = dbPassword
 app.config['SQLALCHEMY_DATABASE_URI'] = dbPath

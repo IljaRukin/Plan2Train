@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, redirect, request
 from flask_login import LoginManager, current_user
 from models import db, User, TrainSession

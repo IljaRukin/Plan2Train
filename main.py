@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 import sqlalchemy
 from flask_login import LoginManager

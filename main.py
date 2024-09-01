@@ -6,11 +6,13 @@ from models import db, User, TrainSession
 
 app = Flask(__name__, static_folder='../templates/static')
 
-dbPath = 'sqlite:///database.db'
-with open("master_password.txt", "r") as f:
-    Password = f.readline().replace('\r', '').replace('\n', '')
+###dbPath = 'sqlite:///database.db'
+dbPath = 'postgres://koyeb-adm:Z6LBg7uNUWRD@ep-young-glade-a2o4n9jq.eu-central-1.pg.koyeb.app/koyebdb'
 
-app.config['SECRET_KEY'] = Password
+if 'DATABASE_PW' in os.environ:
+    dbPassword = os.environ['DATABASE_PW']
+
+app.config['SECRET_KEY'] = dbPassword
 app.config['SQLALCHEMY_DATABASE_URI'] = dbPath
 
 login_manager = LoginManager()
@@ -18,9 +20,9 @@ login_manager.init_app(app)
 db.init_app(app)
 app.app_context().push()
 
-if len(db.session.query.__dict__)==0:
-    print("database empty !")
-    db.create_all()
+#if len(db.session.query.__dict__)==0:
+#    print("database empty !")
+#    db.create_all()
 
 from index import root, index
 app.register_blueprint(root)

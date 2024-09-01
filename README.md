@@ -15,8 +15,12 @@ db.create_all()
 ```
 set FLASK_APP=main.py #commandline
 set FLASK_DEBUG=1 #commandline
+set WEBSITE_PW=myWebPassword #commandline
+set DATABASE_PW=myDbPassword #commandline
 $env:FLASK_APP = "main.py" #powershell
 $env:FLASK_DEBUG = "1" #powershell
+$env:WEBSITE_PW = "myWebPassword" #powershell
+$env:DATABASE_PW = "myDbPassword" #powershell
 flask run
 ```
 

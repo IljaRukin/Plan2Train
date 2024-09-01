@@ -3,8 +3,8 @@ from flask_login import LoginManager, current_user
 from models import db, User, TrainSession
 from sqlalchemy import select
 
-with open("master_password.txt", "r") as f:
-    Password = f.readline().replace('\r', '').replace('\n', '')
+if 'WEBSITE_PW' in os.environ:
+    webPassword = os.environ['WEBSITE_PW']
 
 login_manager = LoginManager()
 
@@ -34,7 +34,7 @@ def show():
         color = None
         description = None
 
-    if masterPassword == Password:
+    if masterPassword == webPassword:
         training = TrainSession(title=title,date=date,color=color,description=description)
         user = User.query.filter_by(id=current_user.get_id()).first()
         user.trainSessions.append(training)
@@ -69,7 +69,7 @@ def show():
         color = None
         description = None
         
-    if masterPassword == Password:
+    if masterPassword == webPassword:
         training = db.session.scalars(
             select(TrainSession)
             .where(TrainSession.id == id)

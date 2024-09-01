@@ -6,8 +6,8 @@ import json
 
 from models import db, User, TrainSession
 
-with open("master_password.txt", "r") as f:
-    Password = f.readline().replace('\r', '').replace('\n', '')
+if 'WEBSITE_PW' in os.environ:
+    webPassword = os.environ['WEBSITE_PW']
 
 login_manager = LoginManager()
 
@@ -25,7 +25,7 @@ def show():
         masterPassword = None
 
     if masterPassword:
-        if masterPassword == Password:
+        if masterPassword == webPassword:
             return {"status":"True"}
         else:
             return {"status":"False"}
@@ -85,7 +85,7 @@ login_manager.init_app(register)
 def show():
     if request.method == 'POST':
         masterPassword = request.form['masterPassword']
-        if masterPassword == Password:
+        if masterPassword == webPassword:
             username = request.form['username']
             password = request.form['password']
             confirm_password = request.form['confirm-password']
@@ -145,7 +145,7 @@ def show():
     else:
         masterPassword = None
 
-    if masterPassword == Password:
+    if masterPassword == webPassword:
         users = User.query.all()
         return render_template('allUsers.html', users=users)
     else:

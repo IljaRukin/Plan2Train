@@ -7,8 +7,7 @@ from models import db, User, TrainSession
 
 app = Flask(__name__, static_folder='../templates/static')
 
-###dbPath = 'sqlite:///database.db'
-dbPath = 'postgresql://koyeb-adm:Z6LBg7uNUWRD@ep-young-glade-a2o4n9jq.eu-central-1.pg.koyeb.app/koyebdb'
+dbPath = 'sqlite:///database.db'
 
 if 'DATABASE_PW' in os.environ:
     dbPassword = os.environ['DATABASE_PW']
@@ -24,9 +23,9 @@ login_manager.init_app(app)
 db.init_app(app)
 app.app_context().push()
 
-#if len(db.session.query.__dict__)==0:
-#    print("database empty !")
-#    db.create_all()
+if len(db.session.query.__dict__)==0:
+    print("database empty !")
+    db.create_all()
 
 from index import root, index
 app.register_blueprint(root)
